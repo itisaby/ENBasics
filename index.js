@@ -5,6 +5,9 @@ app.use('/static',express.static('public'))
 app.set('view engine', 'ejs');
 app.set('views', './public/views')
 
+app.get('/', (req, res)=>{
+    res.render('index',{ title: 'hello  World', message:"express.js" })
+})
 
 
 // console.log(app)

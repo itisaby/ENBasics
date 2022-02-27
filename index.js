@@ -1,12 +1,28 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 const port = 8080;
 app.use('/static',express.static('public'))
 app.set('view engine', 'ejs');
 app.set('views', './public/views')
 
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
+
+
 app.get('/', (req, res)=>{
-    res.render('index',{ title: 'hello  World', message:"express.js" })
+    res.render('index',{ title: 'Login Form', message:"Enter Username and password" })
+})
+
+app.post('/', (req, res)=>{
+    res.render('login',{ title: "user details", username: req.body.username, password: req.body.password })
+})
+
+// Simple calculator
+app.get('/about/:a-:b', (req, res)=>{
+    res.render('about',{ title: 'About', sum:parseInt(req.params.a)+parseInt(req.params.b)})
 })
 
 
@@ -52,8 +68,6 @@ app.get('/', (req, res)=>{
 // })
 
 // app.use(Validator);
-
-
 
 app.listen(port, ()=>{
     console.log("server running on port 8080");

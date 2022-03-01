@@ -1,30 +1,46 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const { body, validationResult } = require('express-validator');
+const { check, validationResult } = require('express-validator');
+const { matchedData, sanitizeBody } = require('express-validator');
 const port = 8080;
-app.use('/static',express.static('public'))
+app.use('/static', express.static('public'))
 app.set('view engine', 'ejs');
 app.set('views', './public/views')
 
-app.use(bodyParser.urlencoded({ extended: false }))
+urlencodedParser = app.use(bodyParser.urlencoded({ extended: false }))
 
 // parse application/json
-app.use(bodyParser.json())
+jsonParser = app.use(bodyParser.json())
 
 
-app.get('/', (req, res)=>{
-    res.render('index',{ title: 'Login Form', message:"Enter Username and password" })
+app.get('/', (req, res) => {
+    res.render('index', { title: 'Login Form', message: "Enter Username and password" })
 })
 
-app.post('/', (req, res)=>{
-    res.render('login',{ title: "user details", username: req.body.username, password: req.body.password })
+
+app.post('/', [
+    check('username','invalid Username').isEmail(),
+    check('password', 'Password must be at least 5 characters').isLength({min: 5}),
+    check('cpassword', 'Password must be at least 5 characters').isLength({min: 5})
+], (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        console.log(errors.mapped())
+        const user = matchedData(req);
+        res.render('index', { title: "Login Form", error: errors.mapped(), user: user })
+    }else{
+        const user = matchedData(req);
+        console.log(user);
+        res.render('login', { title: "user details", user:user})
+    }
 })
+
 
 // Simple calculator
-app.get('/about/:a-:b', (req, res)=>{
-    res.render('about',{ title: 'About', sum:parseInt(req.params.a)+parseInt(req.params.b)})
-})
+// app.get('/about/:a-:b', (req, res)=>{
+//     res.render('about',{ title: 'About', sum:parseInt(req.params.a)+parseInt(req.params.b)})
+// })
 
 
 // console.log(app)
@@ -70,6 +86,6 @@ app.get('/about/:a-:b', (req, res)=>{
 
 // app.use(Validator);
 
-app.listen(port, ()=>{
+app.listen(port, () => {
     console.log("server running on port 8080");
 });

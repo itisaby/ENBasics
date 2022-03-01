@@ -22,7 +22,11 @@ app.get('/', (req, res) => {
 app.post('/', [
     check('username','invalid Username').isEmail(),
     check('password', 'Password must be at least 5 characters').isLength({min: 5}),
-    check('cpassword', 'Password must be at least 5 characters').isLength({min: 5})
+    check('cpassword', 'Password must be at least 5 characters').custom((value, {res}) =>{
+        if(value!=res.body.password){
+            throw new Error("Doesn't match password");
+        }
+    })
 ], (req, res) => {
     const errors = validationResult(req);
     if(!errors.isEmpty()){
